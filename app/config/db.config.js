@@ -1,9 +1,10 @@
 module.exports = {
-  HOST: "localhost",
-  USER: "root",
-  PASSWORD: "123456",
-  DB: "testdb",
-  dialect: "mysql",
+  HOST: "192.168.1.228",
+  PORT: "5432",
+  USER: "currentsea",
+  PASSWORD: "IRONman1",
+  DB: "crashltcdb",
+  dialect: "postgres",
   pool: {
     max: 5,
     min: 0,
