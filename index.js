@@ -22,7 +22,7 @@ const game = require('./server/newgame')
 const db = require('./server/database')
 const async = require("async");
 const GameHistory = require("./server/game_history");
-const config = require("../config/config");
+const config = require('./server/config')
 
 
 app.get('/', function(req, res){

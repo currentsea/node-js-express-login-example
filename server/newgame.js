@@ -119,12 +119,12 @@ class Game extends EventEmitter {
             await this.cashOutAll(this.forcePoint)
             console.log("Force cashed out everyone at : " + this.forcePoint)
             await this.endGame(true)
-            this.io.emit("game_over")
+            this.io.emit("game_over", at)
         }
 
         if (at > this.crashPoint) {
             await this.endGame(false)
-            this.io.emit("game_over")
+            this.io.emit("game_over", at)
         } else {
             await this.tick(elapsed)
         }
