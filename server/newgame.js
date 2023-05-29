@@ -58,14 +58,13 @@ class Game extends EventEmitter {
             time_till_start: restartTime
         })
 
-        console.log("Starting the game.")
-        console.log(newGame)
+        // console.log("Starting the game.")
+        // console.log(newGame)
         setTimeout(await this.blockGame, restartTime)
     }
 
     blockGame = async() => {
         this.state = "BLOCKING"
-        console.log("BLOCKING...")
         const loop = async() => {
             if (this.pendingCount > 0) {
                 console.log("Delaying game by 100ms for " + this.pendingCount + " joins")
@@ -91,7 +90,6 @@ class Game extends EventEmitter {
         }
         this.joined.clear()
         this.io.emit("game_started", bets)
-        console.log("Started the game")
         await this.setForcePoint();
         await this.callTick(0)
     }
@@ -99,7 +97,7 @@ class Game extends EventEmitter {
     callTick = async(elapsed) => {
         let left = this.gameDuration - elapsed
         let nextTick = Math.max(0, Math.min(left, tickRate));
-        console.log("Called a tick..." + left)
+        // console.log("Called a tick..." + left)
         return setTimeout(await this.runTick, nextTick)
     }
 
@@ -107,7 +105,7 @@ class Game extends EventEmitter {
         let elapsed = new Date() - this.startTime
         let at = growthFunc(elapsed)
         this.io.emit("game_tick", {elapsed: elapsed, at:at})
-        console.log("Ran a tick")
+        // console.log("Ran a tick")
 
         await this.runCashOuts(at)
 
@@ -141,7 +139,7 @@ class Game extends EventEmitter {
         let crashTime = Date.now()
 
         assert(this.crashPoint === 0 || this.crashPoint >= 100)
-
+        let prevBankroll = this.bankroll
         if (this.crashPoint !== 0) {
             let givenOut = 0
             for (const player of Object.keys(this.players)) {
@@ -155,7 +153,10 @@ class Game extends EventEmitter {
                 }
             }
             this.bankroll -= givenOut;
-            console.log("Changed bankroll to " + this.bankroll + " (givenOut: " + givenOut + ")")
+
+            if (this.bankRoll !== prevBankroll) {
+                console.log("Changed bankroll to " + this.bankroll + " (givenOut: " + givenOut + ")")
+            }
         }
 
         let playerInfo = this.getInfo().player_info
