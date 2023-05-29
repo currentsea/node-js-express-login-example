@@ -46,6 +46,6 @@ runTheGame().then((lastGame) => {
     console.log(lastGame)
 })
 
-server.listen(3000, () => {
+server.listen(config.PORT, () => {
     console.log('Listening on port ', config.PORT);
 });
