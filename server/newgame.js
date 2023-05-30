@@ -52,6 +52,7 @@ class Game extends EventEmitter {
         this.gameDuration = Math.ceil(inverseGrowth(this.crashPoint + 1)); // how long till the game will crash..
         this.maxWin = Math.round(this.bankroll * 0.03); // Risk 3% per game
 
+        console.log("Starting game with ID: " + this.gameId)
         this.io.emit("game_starting", {
             game_id: this.gameId,
             max_win: this.maxWin,
@@ -178,6 +179,8 @@ class Game extends EventEmitter {
             hash: this.lastHash
         })
 
+        this.io.emit("gamehistory_info", {game_history: this.gameHistory})
+
         /*
         let dbTimer;
         const dbTimeout = async () => {
@@ -200,7 +203,6 @@ class Game extends EventEmitter {
             console.log("Starting a NEW game...")
             setTimeout(await this.runGame, (crashTime + afterCrashTime) - Date.now())
         }
-
         this.state = "ENDED";
     }
 }

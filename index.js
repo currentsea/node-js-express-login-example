@@ -22,7 +22,7 @@ let theGame;
 
 const relayLastGameInfo = () => {
     db.getGameHistory().then((res) => {
-        io.emit("socketio_connected", {game_history: res})
+        io.emit("gamehistory_info", {game_history: res})
     })
 }
 
