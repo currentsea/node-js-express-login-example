@@ -30,11 +30,6 @@ class Game extends EventEmitter {
         this.gameHistory = gameHistory;
         this.lastHash = lastHash;
         this.hash = null;
-
-        // // use nextTick to emit the event once a handler is assigned
-        // process.nextTick(() => {
-        //     this.io.emit('event');
-        // });
         events.EventEmitter.call(this);
     }
 
@@ -179,7 +174,7 @@ class Game extends EventEmitter {
             hash: this.lastHash
         })
 
-        this.io.emit("gamehistory_info", {game_history: this.gameHistory})
+        // this.io.emit("gamehistory_info", {game_history: this.gameHistory})
 
         /*
         let dbTimer;

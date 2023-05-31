@@ -115,6 +115,7 @@ const placeBet = async(amount, autoCashOut, userId, gameId) => {
             console.log(err)
         let playId = result[1].rows[0].id
         assert(typeof playId === 'number')
+        client.end()
         return playId
     })
 
@@ -170,6 +171,7 @@ const endGame = async(gameId, bonuses) => {
 const addSatoshis = async (client, userId, amount) => {
     let res = await client.query('UPDATE users SET balance_satoshis = balance_satoshis + $1 WHERE id = $2', [amount, userId])
     assert (res.rowCount === 1)
+    await client.end()
     return true
 }
 
@@ -257,6 +259,7 @@ const getBankroll = async () => {
     assert (res.rowCount === 1)
     let profit = res.rows[0].profit + config.BANKROLL_OFFSET
     const min = 1e8
+    await client.end()
     return Math.max(min, profit)
 }
 
