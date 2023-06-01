@@ -4,8 +4,8 @@ const async = require('async');
 const lib = require('./lib');
 const config = require('./config');
 const {Client} = require("pg");
-
-
+const passwordHash = require('password-hash');
+const speakeasy = require('speakeasy')
 
 const getClient = async () => {
     if (!config.DATABASE_URL)
@@ -57,8 +57,8 @@ const getLastGameInfo = async () => {
 
     if (!id || id < 1e6) {
         lastGame = {
-            id: 1000000,
-            hash: '75c8bfda2322e3cf110699e391cb3f780c10cbdf07786f0ae33e9060e889ba97'
+            id: 10000000,
+            hash: '14ba2bc99104d019c4cbe9556bd3123e9421e1dd8f1ecdb558d3d89ddca0978f'
         };
     } else {
         lastGame = {
@@ -263,6 +263,35 @@ const getBankroll = async () => {
     return Math.max(min, profit)
 }
 
+const validateUser = async(username, password, otp) => {
+    const client = await getClient()
+    await client.connect()
+    const query = await client.query('SELECT id, password, mfa_secret FROM users WHERE lower(username) = lower($1)', [username])
+
+    if (query.rows.length === 0) {
+        return {error: "NO_USER"}
+    }
+
+    let user = data.rows[0]
+
+    let verified = passwordHash.verify(password, user.password)
+    if (!verified) {
+        return {error: "WRONG_PASSWORD", user_id: user.id}
+    }
+
+    if (user.mfa_secret) {
+        if (!otp) {
+            return {error: "INVALID_OTP", user_id: user.id, login_success: false}
+        }
+        let expected = speakeasy.totp({key:user.mfa_secret, encoding: 'base32', login_success: false})
+        if (otp !== expected) {
+            return { error: "INVALID_OTP", user_id: user.id, login_success: false}
+        }
+    }
+
+    return {user_id: user.id, login_success: true}
+}
 
 
-module.exports = { getBankroll, getLastGameInfo, getUserByName, getClient, validateOneTimeToken, endGame, cashOut, getGameHistory, createGame, placeBet }
+
+module.exports = { validateUser, getBankroll, getLastGameInfo, getUserByName, getClient, validateOneTimeToken, endGame, cashOut, getGameHistory, createGame, placeBet }

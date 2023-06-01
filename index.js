@@ -2,11 +2,12 @@ const express = require('express');
 const app = express();
 const http = require("http");
 const server = http.createServer(app);
-const game = require('./server/newgame')
+const game = require('./server/game')
 const db = require('./server/database')
 const async = require("async");
 const GameHistory = require("./server/game_history");
 const config = require('./server/config')
+const lib = require('./server/lib')
 
 const io = require("socket.io")(server, {
     cors: {
@@ -49,3 +50,27 @@ runTheGame().then((lastGame) => {
 server.listen(config.PORT, () => {
     console.log('Listening on port ', config.PORT);
 });
+
+app.use("/login", async (req, res) => {
+    try {
+        if (!username || !password) {
+            res.sendStatus(400)
+            return res.render(res.json({"message": "no username or password provided"}))
+        }
+
+        let username = lib.removeNullsAndTrim(req.body.username);
+        let password = lib.removeNullsAndTrim(req.body.password);
+        let fp = lib.removeNullsAndTrim(req.body.fp);
+        let otp = lib.removeNullsAndTrim(req.body.otp);
+        let remember = !!req.body.remember;
+        let ipAddress = req.ip;
+        let userAgent = req.get('user-agent');
+
+    } catch (e) {
+        console.log("Got error: " + e)
+    } finally {
+        console.log()
+    }
+
+
+})

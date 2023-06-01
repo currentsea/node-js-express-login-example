@@ -1,5 +1,6 @@
 const assert = require('better-assert');
 const crypto = require('crypto');
+const config = require('./config')
 
 const isUUIDv4 = (uuid) => {
     return (typeof uuid === 'string') && uuid.match(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
@@ -64,16 +65,16 @@ const divisible = (hash, mod) => {
 }
 
 // This will be the client seed of monero block 2871027
-const clientSeed = "7ae4704eb49c8808ab9ef7b119fc39ca9ef56271a97f8821b28429602e44853e";
 
 const crashPointFromHash = (serverSeed) => {
+    const clientSeed = config.CLIENT_SEED || "7ae4704eb49c8808ab9ef7b119fc39ca9ef56271a97f8821b28429602e44853e"
+
     let hash = crypto.createHmac('sha256', serverSeed).update(clientSeed).digest('hex');
 
     // In 1 of 101 games the game crashes instantly.
     if (divisible(hash, 101)) {
         return 0;
     }
-
 
     // Use the most significant 52-bit from the hash to calculate the crash point
     let h = parseInt(hash.slice(0,52/4),16);
@@ -91,6 +92,13 @@ const inverseGrowth = (result) => {
     return c * Math.log(0.01 * result)
 }
 
-module.exports = { inverseGrowth, placeholder, isInt, isUUIDv4, hasOwnProperty, getOwnProperty, parseTimeString, crashPointFromHash, genGameHash, printTimeString }
+const removeNullsAndTrim = (str) => {
+    if(typeof str === 'string')
+        return str.replace(/\0/g, '').trim();
+    else
+        return str;
+};
+
+module.exports = { removeNullsAndTrim, inverseGrowth, placeholder, isInt, isUUIDv4, hasOwnProperty, getOwnProperty, parseTimeString, crashPointFromHash, genGameHash, printTimeString }
 
 
