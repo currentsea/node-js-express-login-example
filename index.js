@@ -7,6 +7,7 @@ const db = require('./server/database')
 const async = require("async");
 const GameHistory = require("./server/game_history");
 const config = require('./server/config')
+const path = require('path')
 
 const io = require("socket.io")(server, {
     cors: {
@@ -49,3 +50,14 @@ runTheGame().then((lastGame) => {
 server.listen(config.PORT, () => {
     console.log('Listening on port ', config.PORT);
 });
+
+app.get('/game_history/:id', function(req, res){
+    db.getGameHistory()
+
+    res.json({game_id: req.params.id});
+});
+
+app.get('/p/:tagId', function(req, res) {
+    res.send("tagId is set to " + req.params.tagId);
+});
+

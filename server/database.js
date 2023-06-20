@@ -30,7 +30,18 @@ const validateOneTimeToken = async(token) => {
         return "NOT_VALID_TOKEN"
     }
     assert (res.rows.length === 1)
-    return result.rows[0]
+    return res.rows[0]
+}
+
+const getGame = async(gameId) => {
+    const client = await getClient()
+    await client.connect()
+    let res = await client.query('SELECT * FROM games ' +
+        'LEFT JOIN game_hashes ON games.id = game_hashes.game_id ' +
+        'WHERE games.id = $1 AND games.ended = TRUE', [gameId])
+    await client.end()
+    assert (res.rows.length === 1)
+    return res.rows[0]
 }
 
 const getLastGameInfo = async () => {
@@ -55,10 +66,10 @@ const getLastGameInfo = async () => {
     const hashQuery = await client.query('SELECT hash FROM game_hashes WHERE game_id = $1', [id])
     assert(query.rows.length === 1)
 
-    if (!id || id < 1e6) {
+    if (!id || id < 1e7) {
         lastGame = {
-            id: 1000000,
-            hash: '75c8bfda2322e3cf110699e391cb3f780c10cbdf07786f0ae33e9060e889ba97'
+            id: 10000000,
+            hash: '14ba2bc99104d019c4cbe9556bd3123e9421e1dd8f1ecdb558d3d89ddca0978f'
         };
     } else {
         lastGame = {
@@ -115,6 +126,7 @@ const placeBet = async(amount, autoCashOut, userId, gameId) => {
             console.log(err)
         let playId = result[1].rows[0].id
         assert(typeof playId === 'number')
+        client.end()
         return playId
     })
 
@@ -170,6 +182,7 @@ const endGame = async(gameId, bonuses) => {
 const addSatoshis = async (client, userId, amount) => {
     let res = await client.query('UPDATE users SET balance_satoshis = balance_satoshis + $1 WHERE id = $2', [amount, userId])
     assert (res.rowCount === 1)
+    await client.end()
     return true
 }
 
@@ -257,9 +270,10 @@ const getBankroll = async () => {
     assert (res.rowCount === 1)
     let profit = res.rows[0].profit + config.BANKROLL_OFFSET
     const min = 1e8
+    await client.end()
     return Math.max(min, profit)
 }
 
 
 
-module.exports = { getBankroll, getLastGameInfo, getUserByName, getClient, validateOneTimeToken, endGame, cashOut, getGameHistory, createGame, placeBet }
+module.exports = { getGame, getBankroll, getLastGameInfo, getUserByName, getClient, validateOneTimeToken, endGame, cashOut, getGameHistory, createGame, placeBet }

@@ -150,6 +150,20 @@ describe('Database Tests', () => {
         expect(newGame.crashPoint).toEqual(gameCrash)
     })
 
+    it("Should get a valid game", async() => {
+        const theDate = Date.parse("2023-06-20 05:37:28.469707+00")
+
+        client.query.mockResolvedValueOnce({
+            "command": "SELECT",
+            "rowCount": 1,
+            "oid": null,
+            "rows": [{id: 10000001, game_crash: 114, created: theDate, ended: "t"}]
+        })
+
+        let pastGame = await db.getGame(10000001);
+        expect(pastGame.id).toBe(10000001)
+    })
+
 
     // it("Should validate a one time token properly", async() => {
     //     client.query.mockResolvedValueOnce({
